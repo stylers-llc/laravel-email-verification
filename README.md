@@ -15,7 +15,7 @@ composer require stylers/laravel-email-verification
 ```bash
 php artisan vendor:publish --tag=laravel-mail
 php artisan vendor:publish --provider="Themsaid\MailPreview\MailPreviewServiceProvider"
-php artisan vendor:publish --provider="Stylers\EmailVerification\ServiceProvider"
+php artisan vendor:publish --provider="Stylers\EmailVerification\Frameworks\Laravel\ServiceProvider"
 ```
 
 ## Run the migrations
