@@ -1,0 +1,68 @@
+{
+    "name": "stylers/laravel-email-verification",
+    "description": "Model has to verify it's email",
+    "type": "library",
+    "homepage": "https://github.com/stylers-llc/laravel-email-verification",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Szilveszter Nagy",
+            "email": "developer@stylersonline.com",
+            "homepage": "http://stylers.hu"
+        },
+        {
+            "name": "Ramon Nagy",
+            "email": "developer@stylersonline.com",
+            "homepage": "http://stylers.hu"
+        }
+    ],
+    "keywords": [
+        "stylers",
+        "laravel",
+        "email",
+        "verification",
+        "verify",
+        "expiration"
+    ],
+    "prefer-stable" : true,
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.1.3",
+        "doctrine/dbal": "^2.9@dev",
+        "illuminate/support": "~5"
+    },
+    "require-dev": {
+        "mockery/mockery": "^1.1",
+        "orchestra/testbench": "^3.7",
+        "phpmd/phpmd": "^2.6",
+        "phpunit/phpunit": "^7.3",
+        "themsaid/laravel-mail-preview": "^2.0"
+    },
+    "autoload": {
+        "classmap": [
+            "src/Frameworks/Laravel/_publish/database",
+            "src/Frameworks/Laravel/_publish/config"
+        ],
+        "psr-4": {
+            "Stylers\\EmailVerification\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Stylers\\EmailVerification\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Stylers\\EmailVerification\\Frameworks\\Laravel\\ServiceProvider"
+            ]
+        }
+    }
+}
