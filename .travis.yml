@@ -11,7 +11,7 @@ install:
 
 script:
     - vendor/bin/phpunit --verbose
-    - vendor/bin/phpmd src text phpmd.xml --exclude src/database
+    - vendor/bin/phpmd src text phpmd.xml --exclude src/Frameworks/Laravel/_publish,src/Frameworks/Laravel/Notifications
 
 matrix:
     fast_finish: true
