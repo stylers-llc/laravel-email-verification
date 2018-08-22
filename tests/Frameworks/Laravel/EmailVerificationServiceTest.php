@@ -23,7 +23,7 @@ class EmailVerificationServiceTest extends BaseTestCase
         $verificationRequest = $verificationService->createEmailVerificationRequest($verifiableUser);
         $verificationService->verify($verificationRequest->getToken());
 
-        $this->assertTrue($verifiableUser->isVerified());
+        $this->assertTrue($verifiableUser->isEmailVerified());
     }
 
     /**

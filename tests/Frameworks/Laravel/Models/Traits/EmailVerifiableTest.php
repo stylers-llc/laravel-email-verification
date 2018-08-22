@@ -65,7 +65,7 @@ class EmailVerifiableTest extends BaseTestCase
         $notifiableUser = factory(User::class)->create();
         $emailVerificationService = new EmailVerificationService();
         $emailVerificationService->createEmailVerificationRequest($notifiableUser);
-        $this->assertFalse($notifiableUser->isVerified());
+        $this->assertFalse($notifiableUser->isEmailVerified());
     }
 
     /**
@@ -80,6 +80,6 @@ class EmailVerifiableTest extends BaseTestCase
         $emailVerificationService = new EmailVerificationService();
         $request = $emailVerificationService->createEmailVerificationRequest($notifiableUser);
         $emailVerificationService->verify($request->getToken());
-        $this->assertTrue($notifiableUser->isVerified());
+        $this->assertTrue($notifiableUser->isEmailVerified());
     }
 }

@@ -10,7 +10,7 @@ interface EmailVerifiableInterface
 
     public function getId();
 
-    public function isVerified(): bool;
+    public function isEmailVerified(): bool;
 
     public function emailVerificationRequests();
 }

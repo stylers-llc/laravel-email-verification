@@ -30,7 +30,7 @@ trait EmailVerifiable
         return $this->morphMany(EmailVerificationRequest::class, 'verifiable');
     }
 
-    public function isVerified(): bool
+    public function isEmailVerified(): bool
     {
         return (bool)$this->emailVerificationRequests()
             ->where('email', $this->getVerifiableEmail())
