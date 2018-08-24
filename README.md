@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/stylers-llc/laravel-email-verification.svg?branch=master)](https://travis-ci.org/stylers-llc/laravel-email-verification)
 
-# Laravel Email Verification
+# Laravel Email Verification (non-released)
 
 ## TODO
 - [ ] Release
