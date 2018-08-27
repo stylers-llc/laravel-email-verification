@@ -66,11 +66,10 @@ abstract class BaseTestCase extends TestCase
 
     private function setUpDatabase()
     {
-        $this->artisan('migrate', ['--database' => 'testing',
-            '--path'     => '../../../../tests/Frameworks/Laravel/Fixtures/database/migrations',
-        ]);
-
-        $this->loadMigrationsFrom(__DIR__ . '/../../../src/Frameworks/Laravel/_publish/database/migrations');
+        $this->loadMigrationsFrom(['--path' => [
+            __DIR__ . '/Fixtures/database/migrations',
+            __DIR__ . '/../../../src/Frameworks/Laravel/_publish/database/migrations',
+        ]]);
         $this->artisan('migrate', ['--database' => 'testing']);
     }
 }

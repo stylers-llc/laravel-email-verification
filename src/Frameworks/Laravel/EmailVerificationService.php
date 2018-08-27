@@ -7,6 +7,7 @@ use Stylers\EmailVerification\EmailVerificationRequestInterface;
 use Stylers\EmailVerification\EmailVerificationServiceInterface;
 use Stylers\EmailVerification\Exceptions\AlreadyVerifiedException;
 use Stylers\EmailVerification\Exceptions\ExpiredVerificationException;
+use Stylers\EmailVerification\Frameworks\Laravel\Events\VerificationSuccess;
 use Stylers\EmailVerification\Frameworks\Laravel\Models\EmailVerificationRequest;
 use Stylers\EmailVerification\Frameworks\Laravel\Notifications\EmailVerificationRequestCreate;
 
@@ -45,24 +46,23 @@ class EmailVerificationService implements EmailVerificationServiceInterface
     /**
      * @param EmailVerificationRequestInterface $verificationRequest
      */
-    public function sendNotification(EmailVerificationRequestInterface $verificationRequest)
+    public function sendNotification(EmailVerificationRequestInterface $verificationRequest): void
     {
         $verificationUrl = route(config('email-verification.route'), ['token' => $verificationRequest->getToken()]);
 
         $emailVerifiable = $verificationRequest->getVerifiable();
         $notification = new EmailVerificationRequestCreate($verificationUrl, $emailVerifiable->getVerifiableName());
-
-        // TODO: add notify method to EmailVerifiableInterface
         $emailVerifiable->notify($notification);
     }
 
     /**
      * @param string $token
-     * @throws ExpiredVerificationException
+     * @return EmailVerificationRequestInterface
      * @throws AlreadyVerifiedException
+     * @throws ExpiredVerificationException
      * @throws \InvalidArgumentException
      */
-    public function verify(string $token): void
+    public function verify(string $token): EmailVerificationRequestInterface
     {
         /** @var EmailVerificationRequest $verificationRequestDAO */
         $verificationRequestDAO = new EmailVerificationRequest();
@@ -82,5 +82,9 @@ class EmailVerificationService implements EmailVerificationServiceInterface
         } else {
             throw new \InvalidArgumentException();
         }
+
+        event(new VerificationSuccess($verificationRequestInstance));
+
+        return $verificationRequestInstance;
     }
 }

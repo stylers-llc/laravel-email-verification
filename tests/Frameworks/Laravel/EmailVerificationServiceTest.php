@@ -3,8 +3,10 @@
 namespace Stylers\EmailVerification\Frameworks\Laravel;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Event;
 use Stylers\EmailVerification\Frameworks\Laravel\Contracts\EmailVerifiableInterface;
 use Stylers\EmailVerification\EmailVerificationRequestInterface;
+use Stylers\EmailVerification\Frameworks\Laravel\Events\VerificationSuccess;
 use Stylers\EmailVerification\Frameworks\Laravel\Fixtures\Models\User;
 use Stylers\EmailVerification\Frameworks\Laravel\Models\EmailVerificationRequest;
 
@@ -17,6 +19,7 @@ class EmailVerificationServiceTest extends BaseTestCase
      */
     public function it_can_verify()
     {
+        Event::fake();
         /** @var EmailVerifiableInterface $verifiableUser */
         $verifiableUser = factory(User::class)->create();
         $verificationService = new EmailVerificationService();
@@ -24,6 +27,13 @@ class EmailVerificationServiceTest extends BaseTestCase
         $verificationService->verify($verificationRequest->getToken());
 
         $this->assertTrue($verifiableUser->isEmailVerified());
+
+        Event::assertDispatched(
+            VerificationSuccess::class,
+            function(VerificationSuccess $e) use ($verificationRequest) {
+                return $e->getVerificationRequest()->id === $verificationRequest->id;
+            }
+        );
     }
 
     /**
@@ -35,8 +45,14 @@ class EmailVerificationServiceTest extends BaseTestCase
      */
     public function it_cannot_verify_non_existing()
     {
+        Event::fake();
         $verificationService = new EmailVerificationService();
-        $verificationService->verify('non-existing-token');
+        try {
+            $verificationService->verify('non-existing-token');
+        } catch (\InvalidArgumentException $exception) {
+            Event::assertNotDispatched(VerificationSuccess::class);
+            throw $exception;
+        }
     }
 
     /**
@@ -47,6 +63,7 @@ class EmailVerificationServiceTest extends BaseTestCase
      */
     public function it_cannot_verify_expired()
     {
+        Event::fake();
         /** @var EmailVerifiableInterface $verifiableUser */
         $verifiableUser = factory(User::class)->create();
         $verificationService = new EmailVerificationService();
@@ -59,7 +76,12 @@ class EmailVerificationServiceTest extends BaseTestCase
         $verificationRequest->setVerifiable($verifiableUser);
         $verificationRequest->save();
 
-        $verificationService->verify($verificationRequest->getToken());
+        try {
+            $verificationService->verify($verificationRequest->getToken());
+        } catch (\Stylers\EmailVerification\Exceptions\ExpiredVerificationException $exception) {
+            Event::assertNotDispatched(VerificationSuccess::class);
+            throw $exception;
+        }
     }
 
     /**
@@ -70,6 +92,7 @@ class EmailVerificationServiceTest extends BaseTestCase
      */
     public function it_cannot_verify_already_verified()
     {
+        Event::fake();
         /** @var EmailVerifiableInterface $verifiableUser */
         $verifiableUser = factory(User::class)->create();
         $verificationService = new EmailVerificationService();
@@ -80,7 +103,12 @@ class EmailVerificationServiceTest extends BaseTestCase
         $verificationRequest->setVerifiable($verifiableUser);
         $verificationRequest->save();
 
-        $verificationService->verify($verificationRequest->getToken());
+        try {
+            $verificationService->verify($verificationRequest->getToken());
+        } catch (\Stylers\EmailVerification\Exceptions\AlreadyVerifiedException $exception) {
+            Event::assertNotDispatched(VerificationSuccess::class);
+            throw $exception;
+        }
     }
 
     /**

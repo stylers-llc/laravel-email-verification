@@ -8,5 +8,8 @@ use Stylers\EmailVerification\EmailVerifiableInterface as BaseEmailVerifiableInt
 
 interface EmailVerifiableInterface extends BaseEmailVerifiableInterface
 {
+    /**
+     * @return MorphMany
+     */
     public function emailVerificationRequests(): MorphMany;
 }

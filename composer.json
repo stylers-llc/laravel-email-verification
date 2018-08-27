@@ -27,9 +27,10 @@
     "prefer-stable" : true,
     "minimum-stability": "dev",
     "require": {
-        "php": ">=7.1.3",
-        "doctrine/dbal": "^2.9@dev",
-        "illuminate/support": "~5"
+        "illuminate/support": "~5",
+        "illuminate/database": "~5",
+        "illuminate/notifications": "~5",
+        "illuminate/bus": "~5"
     },
     "require-dev": {
         "mockery/mockery": "^1.1",

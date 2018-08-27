@@ -40,6 +40,18 @@ class User extends Model implements EmailVerifiableInterface
 }
 ```
 
+### Register your listeners to events
+```php
+// app/Providers/EventServiceProvider.php
+
+    protected $listen = [
+        ...
+        'Stylers\EmailVerification\Frameworks\Laravel\Events\VerificationSuccess' => [
+            // your listeners
+        ]
+    ];
+```
+
 ### Example of generating email-verification-request
 
 Make your own route to create verification-request. Write the code below into the routes/web.php and implement your action
@@ -87,18 +99,18 @@ Implement your verifyEmail method in AnyController
 ...
 use Stylers\EmailVerification\Exceptions\ExpiredVerificationException;
 use Stylers\EmailVerification\Exceptions\AlreadyVerifiedException;
-use Stylers\EmailVerification\EmailVerificationRequestInterface;
+use Stylers\EmailVerification\EmailVerificationServiceInterface;
 ...
 class AnyController extends Controller {
     ...
     public function verifyEmail(
         Request $request, 
-        EmailVerificationRequestInterface $emailVerificationService
+        EmailVerificationServiceInterface $emailVerificationService
     )
     {
         $token = $request->input('token');
         try {
-            $verificationService->verify($token);
+            $emailVerificationRequest = $verificationService->verify($token);
         } catch(ExpiredVerificationException $e) {
             // expired verification token
         } catch(AlreadyVerifiedException $e) {

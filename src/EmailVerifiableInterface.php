@@ -13,4 +13,6 @@ interface EmailVerifiableInterface
     public function isEmailVerified(): bool;
 
     public function emailVerificationRequests();
+
+    public function notify($notificationInstance);
 }
