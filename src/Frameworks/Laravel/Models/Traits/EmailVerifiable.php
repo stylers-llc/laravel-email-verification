@@ -37,4 +37,9 @@ trait EmailVerifiable
             ->whereNotNull('verified_at')
             ->first();
     }
+    
+    public function routeNotificationForMail()
+    {
+        return $this->getVerifiableEmail();
+    }
 }
