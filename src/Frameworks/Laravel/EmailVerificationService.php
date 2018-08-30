@@ -84,6 +84,16 @@ class EmailVerificationService implements EmailVerificationServiceInterface
         }
 
         event(new VerificationSuccess($verificationRequestInstance));
+        
+        $othersVerificationRequests = $verificationRequestDAO
+            ->where('id', '!=', $verificationRequestInstance->id)
+            ->where('email', $verificationRequestInstance->getEmail())
+            ->whereNull('verified_at')
+            ->get();
+
+        $othersVerificationRequests->each(function (EmailVerificationRequest $verificationRequest) {
+            $verificationRequest->delete();
+        });
 
         return $verificationRequestInstance;
     }
