@@ -15,4 +15,6 @@ interface EmailVerifiableInterface
     public function emailVerificationRequests();
 
     public function notify($notificationInstance);
+    
+    public function routeNotificationForMail();
 }
