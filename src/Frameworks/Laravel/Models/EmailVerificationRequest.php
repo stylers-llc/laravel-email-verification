@@ -4,7 +4,6 @@ namespace Stylers\EmailVerification\Frameworks\Laravel\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Stylers\EmailVerification\EmailVerifiableInterface;
 use Stylers\EmailVerification\EmailVerificationRequestInterface;
 
 class EmailVerificationRequest extends Model implements EmailVerificationRequestInterface
@@ -13,6 +12,7 @@ class EmailVerificationRequest extends Model implements EmailVerificationRequest
 
     protected $fillable = [
         'email',
+        'type',
         'token',
         'verified_at',
     ];
@@ -61,19 +61,18 @@ class EmailVerificationRequest extends Model implements EmailVerificationRequest
         $this->verified_at = $verifiedAt;
     }
 
-    public function getVerifiable(): ?EmailVerifiableInterface
-    {
-        return $this->morphTo('verifiable')->first();
-    }
-
-    public function setVerifiable(EmailVerifiableInterface $emailVerifiable)
-    {
-        $this->verifiable_type = get_class($emailVerifiable);
-        $this->verifiable_id = $emailVerifiable->getId();
-    }
-
     public function isVerified(): bool
     {
         return !is_null($this->verified_at);
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type = null)
+    {
+        $this->type = $type;
     }
 }

@@ -20,9 +20,9 @@ interface EmailVerificationRequestInterface
 
     public function setVerificationDate(\DateTimeInterface $verifiedAt = null);
 
-    public function getVerifiable(): ?EmailVerifiableInterface;
+    public function getType(): ?string;
 
-    public function setVerifiable(EmailVerifiableInterface $emailVerifiable);
+    public function setType(string $type = null);
 
     public function isVerified(): bool;
 }

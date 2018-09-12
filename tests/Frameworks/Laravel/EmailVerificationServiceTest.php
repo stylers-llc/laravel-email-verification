@@ -4,10 +4,11 @@ namespace Stylers\EmailVerification\Frameworks\Laravel;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
-use Stylers\EmailVerification\Frameworks\Laravel\Contracts\EmailVerifiableInterface;
+use Stylers\EmailVerification\EmailVerifiableInterface;
 use Stylers\EmailVerification\EmailVerificationRequestInterface;
 use Stylers\EmailVerification\Frameworks\Laravel\Events\VerificationSuccess;
-use Stylers\EmailVerification\Frameworks\Laravel\Fixtures\Models\User;
+use Stylers\EmailVerification\Tests\Frameworks\Laravel\BaseTestCase;
+use Stylers\EmailVerification\Tests\Frameworks\Laravel\Fixtures\Models\User;
 use Stylers\EmailVerification\Frameworks\Laravel\Models\EmailVerificationRequest;
 
 class EmailVerificationServiceTest extends BaseTestCase
@@ -20,13 +21,14 @@ class EmailVerificationServiceTest extends BaseTestCase
     public function it_can_verify()
     {
         Event::fake();
-        /** @var EmailVerifiableInterface $verifiableUser */
-        $verifiableUser = factory(User::class)->create();
+
+        $email = 'test@test.com';
+        $type = 'user';
         $verificationService = new EmailVerificationService();
-        $verificationRequest = $verificationService->createEmailVerificationRequest($verifiableUser);
+        $verificationRequest = $verificationService->createRequest($email, $type);
         $verificationService->verify($verificationRequest->getToken());
 
-        $this->assertTrue($verifiableUser->isEmailVerified());
+        $this->assertTrue($verificationService->isEmailVerified($email, $type));
 
         Event::assertDispatched(
             VerificationSuccess::class,
@@ -70,11 +72,9 @@ class EmailVerificationServiceTest extends BaseTestCase
         $expiredDateTime = new Carbon();
         $expiredDateTime->subMinutes(config('email-verification.expire'));
         /** @var EmailVerificationRequest $verificationRequest */
-        $verificationRequest = factory(EmailVerificationRequest::class)->make([
+        $verificationRequest = factory(EmailVerificationRequest::class)->create([
             'created_at' => $expiredDateTime
         ]);
-        $verificationRequest->setVerifiable($verifiableUser);
-        $verificationRequest->save();
 
         try {
             $verificationService->verify($verificationRequest->getToken());
@@ -97,11 +97,9 @@ class EmailVerificationServiceTest extends BaseTestCase
         $verifiableUser = factory(User::class)->create();
         $verificationService = new EmailVerificationService();
         /** @var EmailVerificationRequest $verificationRequest */
-        $verificationRequest = factory(EmailVerificationRequest::class)->make([
+        $verificationRequest = factory(EmailVerificationRequest::class)->create([
             'verified_at' => new Carbon()
         ]);
-        $verificationRequest->setVerifiable($verifiableUser);
-        $verificationRequest->save();
 
         try {
             $verificationService->verify($verificationRequest->getToken());
@@ -119,7 +117,7 @@ class EmailVerificationServiceTest extends BaseTestCase
     {
         $verifiableUser = factory(User::class)->create();
         $verificationService = new EmailVerificationService();
-        $verificationRequest = $verificationService->createEmailVerificationRequest($verifiableUser);
+        $verificationRequest = $verificationService->createRequest($verifiableUser);
         $this->assertInstanceOf(EmailVerificationRequestInterface::class, $verificationRequest);
     }
 
@@ -132,9 +130,9 @@ class EmailVerificationServiceTest extends BaseTestCase
     {
         $verifiableUser = factory(User::class)->create();
         $verificationService = new EmailVerificationService();
-        $verificationRequest = $verificationService->createEmailVerificationRequest($verifiableUser);
+        $verificationRequest = $verificationService->createRequest($verifiableUser);
         $verificationService->verify($verificationRequest->getToken());
-        $verificationRequest = $verificationService->createEmailVerificationRequest($verifiableUser);
+        $verificationRequest = $verificationService->createRequest($verifiableUser);
 
         $this->assertInstanceOf(EmailVerificationRequestInterface::class, $verificationRequest);
     }
@@ -147,13 +145,12 @@ class EmailVerificationServiceTest extends BaseTestCase
     {
         $verifiableUser = factory(User::class)->create();
         $verificationService = new EmailVerificationService();
-        $verificationRequestFirst = $verificationService->createEmailVerificationRequest($verifiableUser);
-        $verificationRequestSecond = $verificationService->createEmailVerificationRequest($verifiableUser);
+        $verificationRequestFirst = $verificationService->createRequest($verifiableUser->email);
+        $verificationRequestSecond = $verificationService->createRequest($verifiableUser->email);
         $verificationRequestFirst->refresh();
 
         $this->assertInstanceOf(EmailVerificationRequestInterface::class, $verificationRequestFirst);
         $this->assertInstanceOf(EmailVerificationRequestInterface::class, $verificationRequestSecond);
-        $this->assertNotEquals($verificationRequestFirst->id, $verificationRequestSecond->id);
-        $this->assertNotNull($verificationRequestFirst->deleted_at);
+        $this->assertEquals($verificationRequestFirst->id, $verificationRequestSecond->id);
     }
 }

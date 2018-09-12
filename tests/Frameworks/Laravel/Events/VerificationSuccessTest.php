@@ -1,8 +1,9 @@
 <?php
 
-namespace Stylers\EmailVerification\Frameworks\Laravel\Events;
+namespace Stylers\EmailVerification\Tests\Frameworks\Laravel\Events;
 
-use Stylers\EmailVerification\Frameworks\Laravel\BaseTestCase;
+use Stylers\EmailVerification\Tests\Frameworks\Laravel\BaseTestCase;
+use Stylers\EmailVerification\Frameworks\Laravel\Events\VerificationSuccess;
 use Stylers\EmailVerification\Frameworks\Laravel\Models\EmailVerificationRequest;
 
 class VerificationSuccessTest extends BaseTestCase

@@ -1,6 +1,6 @@
 <?php
 
-namespace Stylers\EmailVerification\Frameworks\Laravel;
+namespace Stylers\EmailVerification\Tests\Frameworks\Laravel;
 
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Testing\DatabaseTransactions;

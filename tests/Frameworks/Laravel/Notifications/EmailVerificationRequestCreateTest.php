@@ -1,12 +1,13 @@
 <?php
 
-namespace Stylers\EmailVerification\Frameworks\Laravel\Notifications;
+namespace Stylers\EmailVerification\Tests\Frameworks\Laravel\Notifications;
 
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Route;
-use Stylers\EmailVerification\Frameworks\Laravel\BaseTestCase;
+use Stylers\EmailVerification\Tests\Frameworks\Laravel\BaseTestCase;
 use Stylers\EmailVerification\Frameworks\Laravel\EmailVerificationService;
-use Stylers\EmailVerification\Frameworks\Laravel\Fixtures\Models\User;
+use Stylers\EmailVerification\Frameworks\Laravel\Notifications\EmailVerificationRequestCreate;
+use Stylers\EmailVerification\Tests\Frameworks\Laravel\Fixtures\Models\User;
 
 class EmailVerificationRequestCreateTest extends BaseTestCase
 {
@@ -24,11 +25,11 @@ class EmailVerificationRequestCreateTest extends BaseTestCase
             'name' => $expectedName
         ]);
         $verificationService = new EmailVerificationService();
-        $verificationRequest = $verificationService->createEmailVerificationRequest($verifiableUser);
+        $verificationRequest = $verificationService->createRequest($verifiableUser->email, 'user');
 
         Route::get('email/verify/{token}', function(){})->name(config('email-verification.route'));
         $expectedUrl = route(config('email-verification.route'), ['token' => $verificationRequest->getToken()]);
-        $verificationService->sendNotification($verificationRequest);
+        $verificationService->sendEmail($verificationRequest->getToken(), $verifiableUser);
 
         Notification::assertSentTo(
             $verifiableUser,
@@ -43,8 +44,7 @@ class EmailVerificationRequestCreateTest extends BaseTestCase
                 $this->assertEquals($expectedName, $expectedArray['recipient_name']);
 
                 return $notification->getVerificationUrl() === $expectedUrl
-                    && $notification->getRecipientName() === $expectedName
-                    ;
+                    && $notification->getRecipientName() === $expectedName;
             }
         );
     }

@@ -1,11 +1,9 @@
 <?php
 
-namespace Stylers\EmailVerification\Frameworks\Laravel\Models;
+namespace Stylers\EmailVerification\Tests\Frameworks\Laravel\Models;
 
 use Carbon\Carbon;
-use Stylers\EmailVerification\EmailVerifiableInterface;
-use Stylers\EmailVerification\Frameworks\Laravel\BaseTestCase;
-use Stylers\EmailVerification\Frameworks\Laravel\Fixtures\Models\User;
+use Stylers\EmailVerification\Tests\Frameworks\Laravel\BaseTestCase;
 use Stylers\EmailVerification\Frameworks\Laravel\Models\EmailVerificationRequest;
 
 class EmailVerificationRequestTest extends BaseTestCase
@@ -13,13 +11,9 @@ class EmailVerificationRequestTest extends BaseTestCase
     /** @var EmailVerificationRequest */
     private $verificationRequest;
 
-    /** @var EmailVerifiableInterface */
-    private $verifiable;
-
     protected function setUp()
     {
         parent::setUp();
-        $this->verifiable = factory(User::class)->create();
         $this->verificationRequest = factory(EmailVerificationRequest::class)->make([
             'email' => 'test@test.com',
             'token' => 'test-token',
@@ -58,10 +52,11 @@ class EmailVerificationRequestTest extends BaseTestCase
     /**
      * @test
      */
-    public function it_can_set_verifiable()
+    public function it_can_set_type()
     {
-        $this->verificationRequest->setVerifiable($this->verifiable);
-        $this->assertEquals($this->verifiable->getVerifiableEmail(), $this->verificationRequest->getVerifiable()->getVerifiableEmail());
+        $expectedType = 'user';
+        $this->verificationRequest->setType($expectedType);
+        $this->assertEquals($expectedType, $this->verificationRequest->getType());
     }
 
     /**

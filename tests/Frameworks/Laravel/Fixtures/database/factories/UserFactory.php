@@ -2,7 +2,7 @@
 
 use Faker\Generator as Faker;
 
-$factory->define('Stylers\EmailVerification\Frameworks\Laravel\Fixtures\Models\User', function (Faker $faker) {
+$factory->define('Stylers\EmailVerification\Tests\Frameworks\Laravel\Fixtures\Models\User', function (Faker $faker) {
     return [
         'name' => $faker->name,
         'email' => $faker->email,

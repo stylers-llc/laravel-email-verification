@@ -16,8 +16,8 @@ class CreateEmailVerificationRequestsTable extends Migration
         Schema::create($this->table, function (Blueprint $table) {
             $table->increments('id');
             $table->string('email');
+            $table->string('type')->nullable();
             $table->string('token');
-            $table->morphs('verifiable');
             $table->dateTime('verified_at')->nullable();
             $table->timestamps();
             $table->softDeletes();

@@ -31,7 +31,7 @@ php artisan migrate
 
 ### Set up the abstraction
 ```php
-use Stylers\EmailVerification\Frameworks\Laravel\Contracts\EmailVerifiableInterface;
+use Stylers\EmailVerification\EmailVerifiableInterface;
 use Stylers\EmailVerification\Frameworks\Laravel\Models\Traits\EmailVerifiable;
 
 class User extends Model implements EmailVerifiableInterface
@@ -66,14 +66,14 @@ use Stylers\EmailVerification\Exceptions\AlreadyVerifiedException;
 ...
 class AnyController extends Controller {
     ...
-    public function createEmailVerificationRequest(
+    public function createRequest(
         Request $request, 
         EmailVerificationRequestInterface $emailVerificationService
     )
     {
         $verifiableUser = User::first();
         try {
-            $verificationRequest = $emailVerificationService->createEmailVerificationRequest($verifiableUser);
+            $verificationRequest = $emailVerificationService->createRequest($verifiableUser);
             $emailVerificationService->sendNotification($verificationRequest);
         } catch (AlreadyVerifiedException $e) {
             // handle exception

@@ -4,22 +4,21 @@ namespace Stylers\EmailVerification;
 
 use Stylers\EmailVerification\Exceptions\AlreadyVerifiedException;
 use Stylers\EmailVerification\Exceptions\ExpiredVerificationException;
-use Stylers\EmailVerification\Frameworks\Laravel\Contracts\EmailVerifiableInterface;
 
 interface EmailVerificationServiceInterface
 {
     /**
-     * @param EmailVerifiableInterface $emailVerifiable
+     * @param string $email
+     * @param string|null $type
      * @return EmailVerificationRequestInterface
-     * @throws AlreadyVerifiedException
-     * @throws \Exception
      */
-    public function createEmailVerificationRequest(EmailVerifiableInterface $emailVerifiable): EmailVerificationRequestInterface;
+    public function createRequest(string $email, string $type = null): EmailVerificationRequestInterface;
 
     /**
-     * @param EmailVerificationRequestInterface $verificationRequest
+     * @param string $token
+     * @param NotifiableInterface $notifiable
      */
-    public function sendNotification(EmailVerificationRequestInterface $verificationRequest): void;
+    public function sendEmail(string $token, NotifiableInterface $notifiable): void;
 
     /**
      * @param string $token
@@ -29,4 +28,11 @@ interface EmailVerificationServiceInterface
      * @throws \InvalidArgumentException
      */
     public function verify(string $token): EmailVerificationRequestInterface;
+
+    /**
+     * @param string $email
+     * @param string $type
+     * @return bool
+     */
+    public function isEmailVerified(string $email, string $type): bool;
 }
