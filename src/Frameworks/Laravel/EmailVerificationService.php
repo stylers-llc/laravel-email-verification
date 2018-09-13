@@ -2,7 +2,6 @@
 
 namespace Stylers\EmailVerification\Frameworks\Laravel;
 
-use Stylers\EmailVerification\EmailVerifiableInterface;
 use Stylers\EmailVerification\EmailVerificationRequestInterface;
 use Stylers\EmailVerification\EmailVerificationServiceInterface;
 use Stylers\EmailVerification\Exceptions\AlreadyVerifiedException;
@@ -31,21 +30,30 @@ class EmailVerificationService implements EmailVerificationServiceInterface
      */
     public function createRequest(string $email, string $type = null): EmailVerificationRequestInterface
     {
-        /** @var EmailVerificationRequest $verificationRequest */
-        $verificationRequest = $this->requestDAO->where('email', $email)->where('type', $type)->first();
-
-        if ($verificationRequest) {
-            if ($verificationRequest->isVerified()) {
-                throw new AlreadyVerifiedException();
-            }
-            return $verificationRequest;
+        if ($this->isEmailVerified($email, $type)) {
+            throw new AlreadyVerifiedException();
         }
+        $this->invalidateRequest($email, $type);
 
         return $this->requestDAO->create([
             'email' => $email,
             'type' => $type,
             'token' => uniqid() . str_random(),
         ]);
+    }
+
+    /**
+     * @param string $email
+     * @param string|null $type
+     * @throws \Exception
+     */
+    public function invalidateRequest(string $email, string $type = null)
+    {
+        /** @var EmailVerificationRequest $verificationRequest */
+        $verificationRequest = $this->requestDAO->where('email', $email)->where('type', $type)->first();
+        if ($verificationRequest) {
+            $verificationRequest->delete();
+        }
     }
 
     /**
@@ -85,7 +93,7 @@ class EmailVerificationService implements EmailVerificationServiceInterface
         }
 
         event(new VerificationSuccess($requestInstance));
-        
+
         $othersVerificationRequests = $this->requestDAO
             ->where('id', '!=', $requestInstance->id)
             ->where('email', $requestInstance->getEmail())
@@ -99,7 +107,7 @@ class EmailVerificationService implements EmailVerificationServiceInterface
         return $requestInstance;
     }
 
-    public function isEmailVerified(string $email, string $type): bool
+    public function isEmailVerified(string $email, string $type = null): bool
     {
         return (bool)$this->requestDAO
             ->where('email', $email)

@@ -15,6 +15,12 @@ interface EmailVerificationServiceInterface
     public function createRequest(string $email, string $type = null): EmailVerificationRequestInterface;
 
     /**
+     * @param string $email
+     * @param string|null $type
+     */
+    public function invalidateRequest(string $email, string $type = null);
+
+    /**
      * @param string $token
      * @param NotifiableInterface $notifiable
      */
@@ -34,5 +40,5 @@ interface EmailVerificationServiceInterface
      * @param string $type
      * @return bool
      */
-    public function isEmailVerified(string $email, string $type): bool;
+    public function isEmailVerified(string $email, string $type = null): bool;
 }

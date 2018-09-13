@@ -151,6 +151,22 @@ class EmailVerificationServiceTest extends BaseTestCase
 
         $this->assertInstanceOf(EmailVerificationRequestInterface::class, $verificationRequestFirst);
         $this->assertInstanceOf(EmailVerificationRequestInterface::class, $verificationRequestSecond);
-        $this->assertEquals($verificationRequestFirst->id, $verificationRequestSecond->id);
+        $this->assertNotEquals($verificationRequestFirst->id, $verificationRequestSecond->id);
+    }
+
+    /**
+     * @test
+     * @throws \Stylers\EmailVerification\Exceptions\AlreadyVerifiedException
+     * @throws \Exception
+     */
+    public function it_can_invalidate_request()
+    {
+        $service = new EmailVerificationService();
+        $email = 'test@test.com';
+        $type = 'user';
+        $request = $service->createRequest($email, $type);
+        $service->invalidateRequest($email, $type);
+        $request->refresh();
+        $this->assertNotNull($request->deleted_at);
     }
 }
