@@ -13,4 +13,9 @@ trait EmailVerifiable
     {
         $this->email_verified = $emailVerified;
     }
+
+    public function getVerificationType(): ?string
+    {
+        return null;
+    }
 }
