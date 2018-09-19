@@ -31,25 +31,38 @@ php artisan migrate
 
 ### Set up the abstraction
 ```php
+use Stylers\EmailVerification\NotifiableInterface;
+use Illuminate\Notifications\Notifiable;
 use Stylers\EmailVerification\EmailVerifiableInterface;
 use Stylers\EmailVerification\Frameworks\Laravel\Models\Traits\EmailVerifiable;
 
-class User extends Model implements EmailVerifiableInterface
+class User extends Model implements NotifiableInterface, EmailVerifiableInterface
 {
+    use Notifiable;
     use EmailVerifiable;
+    ...
+    public function getName(): string
+    {
+        return (string)$this->name;
+    }
 }
 ```
 
 ### Register your listeners to events
 ```php
 // app/Providers/EventServiceProvider.php
-
-    protected $listen = [
-        ...
-        'Stylers\EmailVerification\Frameworks\Laravel\Events\VerificationSuccess' => [
-            // your listeners
-        ]
-    ];
+protected $listen = [
+    ...
+    'Stylers\EmailVerification\Frameworks\Laravel\Events\VerificationSuccess' => [
+        'your\listener\class1',
+        'your\listener\class2',
+    ]
+];
+// OR you can register your listener via Event facade in any ServiceProvider::boot method
+Event::listen(
+    'Stylers\EmailVerification\Frameworks\Laravel\Events\VerificationSuccess',
+    'your\listener\class'
+);
 ```
 
 ### Example of generating email-verification-request
@@ -71,10 +84,10 @@ class AnyController extends Controller {
         EmailVerificationRequestInterface $emailVerificationService
     )
     {
-        $verifiableUser = User::first();
+        $verifiableUser = $notifiableUser = User::first();
         try {
-            $verificationRequest = $emailVerificationService->createRequest($verifiableUser);
-            $emailVerificationService->sendNotification($verificationRequest);
+            $verificationRequest = $emailVerificationService->createRequest($verifiableUser->email);
+            $emailVerificationService->sendEmail($verificationRequest->getToken(), $notifiableUser);
         } catch (AlreadyVerifiedException $e) {
             // handle exception
         }
@@ -110,7 +123,7 @@ class AnyController extends Controller {
     {
         $token = $request->input('token');
         try {
-            $emailVerificationRequest = $verificationService->verify($token);
+            $emailVerificationRequest = $emailVerificationService->verify($token);
         } catch(ExpiredVerificationException $e) {
             // expired verification token
         } catch(AlreadyVerifiedException $e) {
@@ -119,6 +132,7 @@ class AnyController extends Controller {
             // non-existing token
         }
         ...
+        // email verification succeed
     }
 }
 ```
