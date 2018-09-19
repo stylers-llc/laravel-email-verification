@@ -33,7 +33,7 @@ class EmailVerificationService implements EmailVerificationServiceInterface
         if ($this->isEmailVerified($email, $type)) {
             throw new AlreadyVerifiedException();
         }
-        $this->invalidateRequest($email, $type);
+        $this->revokeRequest($email, $type);
 
         return $this->requestDAO->create([
             'email' => $email,
@@ -47,7 +47,7 @@ class EmailVerificationService implements EmailVerificationServiceInterface
      * @param string|null $type
      * @throws \Exception
      */
-    public function invalidateRequest(string $email, string $type = null)
+    public function revokeRequest(string $email, string $type = null)
     {
         /** @var EmailVerificationRequest $verificationRequest */
         $verificationRequest = $this->requestDAO->where('email', $email)->where('type', $type)->first();
@@ -73,35 +73,20 @@ class EmailVerificationService implements EmailVerificationServiceInterface
      * @throws AlreadyVerifiedException
      * @throws ExpiredVerificationException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
      */
     public function verify(string $token): EmailVerificationRequestInterface
     {
         /** @var EmailVerificationRequest $requestInstance */
         $requestInstance = $this->requestDAO->where('token', $token)->first();
-        if ($requestInstance) {
-            $now = new \DateTime();
-            if ($requestInstance->getExpirationDate() <= $now) {
-                throw new ExpiredVerificationException();
-            }
-            if ($requestInstance->isVerified()) {
-                throw new AlreadyVerifiedException();
-            }
+        $now = new \DateTime();
+        $this->validateVerificationRequest($requestInstance, $now);
+
+        \DB::transaction(function () use ($requestInstance, $now) {
             $requestInstance->setVerificationDate($now);
             $requestInstance->save();
-        } else {
-            throw new \InvalidArgumentException();
-        }
-
-        event(new VerificationSuccess($requestInstance));
-
-        $othersVerificationRequests = $this->requestDAO
-            ->where('id', '!=', $requestInstance->id)
-            ->where('email', $requestInstance->getEmail())
-            ->whereNull('verified_at')
-            ->get();
-
-        $othersVerificationRequests->each(function (EmailVerificationRequest $verificationRequest) {
-            $verificationRequest->delete();
+            $this->removeOtherVerificationRequests($requestInstance);
+            event(new VerificationSuccess($requestInstance));
         });
 
         return $requestInstance;
@@ -114,5 +99,44 @@ class EmailVerificationService implements EmailVerificationServiceInterface
             ->where('type', $type)
             ->whereNotNull('verified_at')
             ->count();
+    }
+
+    /**
+     * @param EmailVerificationRequestInterface $requestInstance
+     * @param \DateTimeInterface|null $expirationDate
+     * @throws AlreadyVerifiedException
+     * @throws ExpiredVerificationException
+     */
+    private function validateVerificationRequest(
+        ?EmailVerificationRequestInterface $requestInstance,
+        \DateTimeInterface $expirationDate
+    ): void
+    {
+        if ($requestInstance) {
+            if ($requestInstance->getExpirationDate() <= $expirationDate) {
+                throw new ExpiredVerificationException();
+            }
+            if ($requestInstance->isVerified()) {
+                throw new AlreadyVerifiedException();
+            }
+        } else {
+            throw new \InvalidArgumentException();
+        }
+    }
+
+    /**
+     * @param $requestInstance
+     */
+    private function removeOtherVerificationRequests($requestInstance): void
+    {
+        $othersVerificationRequests = $this->requestDAO
+            ->where('id', '!=', $requestInstance->id)
+            ->where('email', $requestInstance->getEmail())
+            ->whereNull('verified_at')
+            ->get();
+
+        $othersVerificationRequests->each(function (EmailVerificationRequest $verificationRequest) {
+            $verificationRequest->delete();
+        });
     }
 }

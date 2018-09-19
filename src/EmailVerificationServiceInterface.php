@@ -18,7 +18,7 @@ interface EmailVerificationServiceInterface
      * @param string $email
      * @param string|null $type
      */
-    public function invalidateRequest(string $email, string $type = null);
+    public function revokeRequest(string $email, string $type = null);
 
     /**
      * @param string $token

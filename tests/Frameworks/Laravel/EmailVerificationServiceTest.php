@@ -165,7 +165,7 @@ class EmailVerificationServiceTest extends BaseTestCase
         $email = 'test@test.com';
         $type = 'user';
         $request = $service->createRequest($email, $type);
-        $service->invalidateRequest($email, $type);
+        $service->revokeRequest($email, $type);
         $request->refresh();
         $this->assertNotNull($request->deleted_at);
     }

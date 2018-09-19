@@ -11,20 +11,10 @@ class EmailVerifiableTest extends BaseTestCase
     /**
      * @test
      */
-    public function it_can_get_verified_status_default_false()
+    public function it_can_get_verification_type()
     {
         /** @var User $user */
-        $user = factory(User::class)->create();
-        $this->assertFalse($user->isEmailVerified());
-    }
-    /**
-     * @test
-     */
-    public function it_can_set_verified_status()
-    {
-        /** @var User $user */
-        $user = factory(User::class)->create();
-        $user->setEmailVerified(true);
-        $this->assertTrue($user->isEmailVerified());
+        $user = factory(User::class)->make();
+        $this->assertNull($user->getVerificationType());
     }
 }
