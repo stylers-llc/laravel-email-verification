@@ -10,6 +10,7 @@ use Stylers\EmailVerification\Frameworks\Laravel\Events\VerificationSuccess;
 use Stylers\EmailVerification\Frameworks\Laravel\Models\EmailVerificationRequest;
 use Stylers\EmailVerification\Frameworks\Laravel\Notifications\EmailVerificationRequestCreate;
 use Stylers\EmailVerification\NotifiableInterface;
+use Illuminate\Support\Str;
 
 class EmailVerificationService implements EmailVerificationServiceInterface
 {
@@ -38,7 +39,7 @@ class EmailVerificationService implements EmailVerificationServiceInterface
         return $this->requestDAO->create([
             'email' => $email,
             'type' => $type,
-            'token' => uniqid() . str_random(),
+            'token' => uniqid() . Str::random(),
         ]);
     }
 

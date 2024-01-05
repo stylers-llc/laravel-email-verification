@@ -47,6 +47,8 @@ class EmailVerificationServiceTest extends BaseTestCase
      */
     public function it_cannot_verify_non_existing()
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         Event::fake();
         $verificationService = new EmailVerificationService();
         try {
@@ -65,6 +67,8 @@ class EmailVerificationServiceTest extends BaseTestCase
      */
     public function it_cannot_verify_expired()
     {
+        $this->expectException(\Stylers\EmailVerification\Exceptions\ExpiredVerificationException::class);
+
         Event::fake();
         /** @var EmailVerifiableInterface $verifiableUser */
         $verifiableUser = factory(User::class)->create();
@@ -92,6 +96,8 @@ class EmailVerificationServiceTest extends BaseTestCase
      */
     public function it_cannot_verify_already_verified()
     {
+        $this->expectException(\Stylers\EmailVerification\Exceptions\AlreadyVerifiedException::class);
+
         Event::fake();
         /** @var EmailVerifiableInterface $verifiableUser */
         $verifiableUser = factory(User::class)->create();
@@ -128,6 +134,8 @@ class EmailVerificationServiceTest extends BaseTestCase
      */
     public function it_cannot_create_email_verification_request_that_already_verified()
     {
+        $this->expectException(\Stylers\EmailVerification\Exceptions\AlreadyVerifiedException::class);
+        
         $verifiableUser = factory(User::class)->create();
         $verificationService = new EmailVerificationService();
         $verificationRequest = $verificationService->createRequest($verifiableUser);

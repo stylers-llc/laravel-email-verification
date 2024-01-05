@@ -37,7 +37,7 @@ class EmailVerificationRequestCreateTest extends BaseTestCase
             function (EmailVerificationRequestCreate $notification) use ($verifiableUser, $expectedUrl, $expectedName) {
                 $mailData = $notification->toMail($verifiableUser)->toArray();
 
-                $this->assertContains($expectedUrl, $mailData['actionUrl']);
+                $this->assertEquals($expectedUrl, $mailData['actionUrl']);
 
                 $expectedArray = $notification->toArray($verifiableUser);
                 $this->assertEquals($expectedUrl, $expectedArray['verification_url']);

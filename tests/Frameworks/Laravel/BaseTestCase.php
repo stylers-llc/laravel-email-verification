@@ -6,7 +6,7 @@ use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Orchestra\Testbench\TestCase;
 use Stylers\EmailVerification\Frameworks\Laravel\ServiceProvider as EmailVerificationServiceProvider;
-use Themsaid\MailPreview\MailPreviewServiceProvider;
+use Spatie\MailPreview\MailPreviewServiceProvider;
 
 abstract class BaseTestCase extends TestCase
 {
@@ -14,14 +14,14 @@ abstract class BaseTestCase extends TestCase
 
     protected $consoleOutput;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->setUpFactory();
         $this->setUpDatabase();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->consoleOutput = '';
         $this->artisan('migrate:reset');

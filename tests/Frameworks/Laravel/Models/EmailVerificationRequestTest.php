@@ -11,7 +11,7 @@ class EmailVerificationRequestTest extends BaseTestCase
     /** @var EmailVerificationRequest */
     private $verificationRequest;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->verificationRequest = factory(EmailVerificationRequest::class)->make([
